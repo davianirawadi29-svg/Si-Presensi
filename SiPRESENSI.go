@@ -124,7 +124,8 @@ func addStudent(students *studentList, attendancelog *loglist, sorted *bool) {
 		fmt.Scan(&students.detail[index].name)
 		fmt.Print("Enter Student ID: ")
 		fmt.Scan(&students.detail[index].sid)
-		attendancelog[index].student = students.detail[index]
+		attendancelog[index].student.name = students.detail[index].name
+		attendancelog[index].student.sid = students.detail[index].sid
 		attendancelog[index].presence = 0
 		attendancelog[index].absence = 0
 
@@ -156,7 +157,8 @@ func changeStudentData(students *studentList, attendancelog *loglist, sorted *bo
 		fmt.Scan(&students.detail[*index].name)
 		fmt.Print("Enter new SID: ")
 		fmt.Scan(&students.detail[*index].sid)
-		attendancelog[*index].student = students.detail[*index]
+		attendancelog[*index].student.name = students.detail[*index].name
+		attendancelog[*index].student.sid = students.detail[*index].sid
 		attendancelog[*index].presence = 0
 		attendancelog[*index].absence = 0
 		*sorted = false
