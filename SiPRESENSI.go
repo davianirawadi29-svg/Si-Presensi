@@ -16,7 +16,7 @@ type studentList struct {
 
 // Student's Data
 
-type list [NMAX]string
+type list [NMAX]studentDetail
 
 type course struct {
 	name       string
@@ -200,12 +200,13 @@ func searchStudentData(students studentList, index *int) {
 		fmt.Scan(&name)
 		for i = 0; i < students.count && students.detail[i].name != name; i++ {
 		}
-		*index = i
 	} else if choice == "sid" {
 		fmt.Print("Enter Student ID: ")
 		fmt.Scan(&sid)
 		for i = 0; i < students.count && students.detail[i].sid != sid; i++ {
 		}
+	}
+	if i < students.count {
 		*index = i
 	}
 	fmt.Printf("\n")
