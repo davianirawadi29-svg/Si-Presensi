@@ -61,7 +61,7 @@ func main() {
 	fmt.Println("6. View Class Schedule")
 	fmt.Println("7. Record Attendance")
 	fmt.Println("8. View Attendance Log")
-	fmt.Println("10. Sort Student Data")
+	fmt.Println("9. Sort Student Data")
 	fmt.Println("-1. Exit")
 	fmt.Scanln(&choice)
 
@@ -87,7 +87,7 @@ func main() {
 			recordAttendance(&schedule, &attendancelog)
 		case 8:
 			viewAttendanceLog(&attendancelog)
-		case 10:
+		case 9:
 			sortStudentData(&students, &attendancelog)
 		default:
 			fmt.Print("Invalid choice. Please select a valid option: ")
