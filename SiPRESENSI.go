@@ -163,13 +163,17 @@ func changeStudentData(students *studentList, attendancelog *loglist, sorted *bo
 	} else {
 		fmt.Printf("Current Name: %s\n", students.detail[*index].name)
 		fmt.Printf("Current SID: %d\n", students.detail[*index].sid)
+		fmt.Printf("Current Class: %s\n", students.detail[*index].class)
 		fmt.Printf("\n")
 		fmt.Print("Enter new name: ")
 		fmt.Scan(&students.detail[*index].name)
 		fmt.Print("Enter new SID: ")
 		fmt.Scan(&students.detail[*index].sid)
+		fmt.Print("Enter new Class: ")
+		fmt.Scan(&students.detail[*index].class)
 		attendancelog[*index].student.name = students.detail[*index].name
 		attendancelog[*index].student.sid = students.detail[*index].sid
+		attendancelog[*index].student.sid = students.detail[*index].class
 		attendancelog[*index].presence = 0
 		attendancelog[*index].absence = 0
 		*sorted = false
