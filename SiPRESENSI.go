@@ -1,3 +1,6 @@
+// This is a simple program to track absence of students in college. The user is assumed to be a lecturer or an academic administration staff in a university.
+// There will be 3 data managed. Student's data, class schedule data and attendance log data. 
+
 package main
 
 import "fmt"
@@ -7,6 +10,7 @@ const NMAX = 999
 type studentDetail struct {
 	name string
 	sid  int
+	class string
 }
 
 type studentList struct {
@@ -14,7 +18,7 @@ type studentList struct {
 	count  int
 }
 
-// Student's Data
+// type StudentList will be used as student's data. Count determines the amount of students. 
 
 type list [NMAX]studentDetail
 
@@ -26,11 +30,14 @@ type course struct {
 	alpha      list
 }
 
-type class [NMAX]course
+type class struct {
+	subjects [NMAX]course
+	day string
+}
 
 type classlist [NMAX]class
 
-// Class Schedule Data
+// Class Schedule Data. The type Class lists out the courses each day. The type Classlist lists out the class schedule.
 
 type log struct {
 	student  studentDetail
@@ -40,7 +47,8 @@ type log struct {
 
 type loglist [NMAX]log
 
-// Attendance Log Data
+// type Loglist is used as attendance log data. Students listed as present in a course will have their presence count added.
+// Students listed as sick, permission or alpha in a course will have their absence count added.		
 
 func main() {
 	var students studentList
