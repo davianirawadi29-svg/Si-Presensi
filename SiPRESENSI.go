@@ -132,8 +132,11 @@ func addStudent(students *studentList, attendancelog *loglist, sorted *bool) {
 		fmt.Scan(&students.detail[index].name)
 		fmt.Print("Enter Student ID: ")
 		fmt.Scan(&students.detail[index].sid)
+		fmt.Print("Enter Student Class: ")
+		fmt.Scan(&students.detail[index].class)
 		attendancelog[index].student.name = students.detail[index].name
 		attendancelog[index].student.sid = students.detail[index].sid
+		attendancelog[index].student.name = students.detail[index].class
 		attendancelog[index].presence = 0
 		attendancelog[index].absence = 0
 
