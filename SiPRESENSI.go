@@ -5,7 +5,8 @@ package main
 
 import "fmt"
 
-const NMAX = 999
+const STUDENT 50
+const COURSE 20
 
 type studentDetail struct {
 	name string
@@ -14,7 +15,7 @@ type studentDetail struct {
 }
 
 type studentList struct {
-	detail [NMAX]studentDetail
+	detail [STUDENT]studentDetail
 	count  int
 }
 
@@ -29,7 +30,7 @@ type course struct {
 }
 
 type class struct {
-	subjects [NMAX]course
+	subjects [COURSE]course
 	subjectcount int
 	day string
 }
@@ -46,7 +47,7 @@ type log struct {
 }
 
 type loglist struct {
-	datalog [NMAX]log
+	datalog [STUDENT]log
 	logcount int
 }
 // type Loglist is used as attendance log data. Students listed as present in a course will have their presence count added.
@@ -64,7 +65,7 @@ func main() {
 	students.count = 0
 	attendancelog.logcount = 0
 
-	schedule[0].day = 'Monday"
+	schedule[0].day = "Monday"
 	schedule[0].subjectcount = 0
 	schedule[1].day = "Tuesday"
 	schedule[1].subjectcount = 0
@@ -118,6 +119,7 @@ func main() {
 				fmt.Print("Student not found.")
 				fmt.Print("Press Enter to go back...")
 				fmt.Scanln()
+			}
 		case 5:
 			addClassSchedule(&schedule)
 		case 6:
@@ -131,7 +133,7 @@ func main() {
 			fmt.Scan(&sortchoice)
 			if sortchoice == "name" {
 				Insertion(&students, &attendancelog, &sorted, &ordersort)
-			} else if sortchoice == "absence"
+			} else if sortchoice == "absence" {
 				Selection(&students, &attendancelog, &sorted, &ordersort)
 			}
 		default:
@@ -153,8 +155,9 @@ func main() {
 		fmt.Println("6. View Class Schedule")
 		fmt.Println("7. Record Attendance")
 		fmt.Println("8. View Attendance Log")
+		fmt.Println("9. Sort Student Data")
 		fmt.Println("-1. Exit")
-		fmt.Scanln(&choice)
+		fmt.Scan(&choice)
 	}
 
 // After the user has done something with the program, the menu pops up again. If the user inputs -1, the program stops.
@@ -175,34 +178,40 @@ func addStudent(students *studentList, attendancelog *loglist, sorted *bool) {
 
 	index = students.count
 	for choice != "No" {
-		fmt.Print("Enter Student Name: ")
-		fmt.Scan(&students.detail[index].name)
-		fmt.Print("Enter Student ID: ")
-		fmt.Scan(&students.detail[index].sid)
-		fmt.Print("Enter Student Class: ")
-		fmt.Scan(&students.detail[index].class)
-		attendancelog.datalog[index].student.name = students.detail[index].name
-		attendancelog.datalog[index].student.sid = students.detail[index].sid
-		attendancelog.datalog[index].student.class = students.detail[index].class
-		attendancelog.datalog[index].presence = 0
-		attendancelog.datalog[index].absence = 0
-
-		fmt.Print("Add another student? (Yes/No): ")
-		fmt.Scan(&choice)
-		index = index + 1
-		fmt.Printf("\n")
+		if index < STUDENT {
+			fmt.Print("Enter Student Name: ")
+			fmt.Scan(&students.detail[index].name)
+			fmt.Print("Enter Student ID: ")
+			fmt.Scan(&students.detail[index].sid)
+			fmt.Print("Enter Student Class: ")
+			fmt.Scan(&students.detail[index].class)
+			attendancelog.datalog[index].student.name = students.detail[index].name
+			attendancelog.datalog[index].student.sid = students.detail[index].sid
+			attendancelog.datalog[index].student.class = students.detail[index].class
+			attendancelog.datalog[index].presence = 0
+			attendancelog.datalog[index].absence = 0
+	
+			fmt.Print("Add another student? (Yes/No): ")
+			fmt.Scan(&choice)
+			index = index + 1
+			fmt.Printf("\n")
+		} else {
+			fmt.Printf("Maximum capacity reached.\n")
+			break
+		}
 	}
-	*attendancelog.logcount = index - 1
-	*students.count = index - 1
+	attendancelog.logcount = index 
+	students.count = index
 	*sorted = false
 
 	fmt.Println("Student(s) added successfully!")
 	fmt.Print("Press Enter to go back...")
 	fmt.Scanln()
+	fmt.Scanln()
 }
 
 func changeStudentData(students *studentList, attendancelog *loglist, schedule *classlist, sorted *bool, index *int) {
-	var j, k, l int
+	var j, k, l, day int
 	var name string
 	clearscreen()
 	if *index == -1 {
@@ -229,66 +238,46 @@ func changeStudentData(students *studentList, attendancelog *loglist, schedule *
 		attendancelog.datalog[*index].absence = 0
 
 		day = 0
-		for day <= 7 {
+		for day < 7 {
 			j = 0
 			k = 0
-			for j <= schedule[day].subjectcount {
-				for k <= schedule[day].subjects[j].present.count {
+			for j < schedule[day].subjectcount {
+				for k < schedule[day].subjects[j].present.count {
 					if schedule[day].subjects[j].present.detail[k].name == name {
-						if k == schedule[day].subjects[j].present.count {
-							schedule[day].subjects[j].present.detail[k].name = ""
-							schedule[day].subjects[j].present.detail[k].sid = 0
-							schedule[day].subjects[j].present.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].present.count; l++ {
-								schedule[day].subjects[j].present.detail[l] = schedule[day].subjects[j].present.detail[l+1]
-							}
+						for l = k; l < schedule[day].subjects[j].present.count - 1; l++ {
+							schedule[day].subjects[j].present.detail[l] = schedule[day].subjects[j].present.detail[l+1]
 						}
+						schedule[day].subjects[j].present.count--
 					}
 					k = k + 1
 				}
 				k = 0
-				for k <= schedule[day].subjects[j].sick.count {
-					if  schedule[day].subjects[j].sick.detail[k].name == name {
-						if k == schedule[day].subjects[j].sick.count {
-							schedule[day].subjects[j].sick.detail[k].name = ""
-							schedule[day].subjects[j].sick.detail[k].sid = 0
-							schedule[day].subjects[j].sick.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].sick.count; l++ {
-								schedule[day].subjects[j].sick.detail[l] = schedule[day].subjects[j].sick.detail[l+1]
-							}
+				for k < schedule[day].subjects[j].sick.count {
+					if schedule[day].subjects[j].sick.detail[k].name == name {
+						for l = k; l < schedule[day].subjects[j].sick.count - 1; l++ {
+							schedule[day].subjects[j].sick.detail[l] = schedule[day].subjects[j].sick.detail[l+1]
 						}
+						schedule[day].subjects[j].sick.count--
 					}
 					k = k + 1
 				}
 				k = 0
-				for k <= schedule[day].subjects[j].permission.count {
+				for k < schedule[day].subjects[j].permission.count {
 					if schedule[day].subjects[j].permission.detail[k].name == name {
-					   if k == schedule[day].subjects[j].permission.count {
-							schedule[day].subjects[j].permission.detail[k].name = ""
-							schedule[day].subjects[j].permission.detail[k].sid = 0
-							schedule[day].subjects[j].permission.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].permission.count; l++ {
-								schedule[day].subjects[j].permission.detail[l] = schedule[day].subjects[j].permission.detail[l+1]
-							}
+						for l = k; l < schedule[day].subjects[j].permission.count - 1; l++ {
+							schedule[day].subjects[j].permission.detail[l] = schedule[day].subjects[j].permission.detail[l+1]
 						}
+						schedule[day].subjects[j].permission.count--
 					}
 					k = k + 1
 				}
 				k = 0
-				for k <= schedule[day].subjects[j].alpha.count {
+				for k < schedule[day].subjects[j].alpha.count {
 					if schedule[day].subjects[j].alpha.detail[k].name == name {
-						if k == schedule[day].subjects[j].alpha.count {
-							schedule[day].subjects[j].alpha.detail[k].name = ""
-							schedule[day].subjects[j].alpha.detail[k].sid = 0
-							schedule[day].subjects[j].alpha.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].alpha.count; l++ {
-								schedule[day].subjects[j].alpha.detail[l] = schedule[day].subjects[j].alpha.detail[l+1]
-							}
+						for l = k; l < schedule[day].subjects[j].alpha.count - 1; l++ {
+							schedule[day].subjects[j].alpha.detail[l] = schedule[day].subjects[j].alpha.detail[l+1]
 						}
+						schedule[day].subjects[j].alpha.count--
 					}
 					k = k + 1
 				}
@@ -305,86 +294,67 @@ func changeStudentData(students *studentList, attendancelog *loglist, schedule *
 	fmt.Printf("\nStudent data updated, attendance log reset for this student.\n")
 	fmt.Print("Press Enter to go back...")
 	fmt.Scanln()
+	fmt.Scanln()
 }
 
-func deleteStudentData(students *studentList, attendancelog *loglist, sorted *bool, index *int) {
-	var j, k, l int
+func deleteStudentData(students *studentList, attendancelog *loglist, schedule *classlist, sorted *bool, index *int) {
+	var j, k, l, day int
 	var name string
 	clearscreen()
-	name = students.detail[*index].name
 	if *index == -1 {
 		fmt.Print("No student selected. Please search for a student first.\n")
 		fmt.Print("Press Enter to go back...")
 		fmt.Scanln()
 		return
 	} else {
-		for i := *index; i < students.count; i++ {
+		name = students.detail[*index].name
+		for i := *index; i < students.count - 1; i++ {
 			students.detail[i] = students.detail[i+1]
 			attendancelog.datalog[i] = attendancelog.datalog[i+1]
 		}
 		students.count = students.count - 1
 		attendancelog.logcount = attendancelog.logcount - 1
 		day = 0
-		for day <= 7 {
+		for day < 7 {
 			j = 0
 			k = 0
-			for j <= schedule[day].subjectcount {
-				for k <= schedule[day].subjects[j].present.count {
+			for j < schedule[day].subjectcount {
+				for k < schedule[day].subjects[j].present.count {
 					if schedule[day].subjects[j].present.detail[k].name == name {
-						if k == schedule[day].subjects[j].present.count {
-							schedule[day].subjects[j].present.detail[k].name = ""
-							schedule[day].subjects[j].present.detail[k].sid = 0
-							schedule[day].subjects[j].present.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].present.count; l++ {
-								schedule[day].subjects[j].present.detail[l] = schedule[day].subjects[j].present.detail[l+1]
-							}
+						for l = k; l < schedule[day].subjects[j].present.count - 1; l++ {
+							schedule[day].subjects[j].present.detail[l] = schedule[day].subjects[j].present.detail[l+1]
 						}
+						schedule[day].subjects[j].present.count--
 					}
 					k = k + 1
 				}
 				k = 0
-				for k <= schedule[day].subjects[j].sick.count {
-					if  schedule[day].subjects[j].sick.detail[k].name == name {
-						if k == schedule[day].subjects[j].sick.count {
-							schedule[day].subjects[j].sick.detail[k].name = ""
-							schedule[day].subjects[j].sick.detail[k].sid = 0
-							schedule[day].subjects[j].sick.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].sick.count; l++ {
-								schedule[day].subjects[j].sick.detail[l] = schedule[day].subjects[j].sick.detail[l+1]
-							}
+				for k < schedule[day].subjects[j].sick.count {
+					if schedule[day].subjects[j].sick.detail[k].name == name {
+						for l = k; l < schedule[day].subjects[j].sick.count - 1; l++ {
+							schedule[day].subjects[j].sick.detail[l] = schedule[day].subjects[j].sick.detail[l+1]
 						}
+						schedule[day].subjects[j].sick.count--
 					}
 					k = k + 1
 				}
 				k = 0
-				for k <= schedule[day].subjects[j].permission.count {
+				for k < schedule[day].subjects[j].permission.count {
 					if schedule[day].subjects[j].permission.detail[k].name == name {
-					   if k == schedule[day].subjects[j].permission.count {
-							schedule[day].subjects[j].permission.detail[k].name = ""
-							schedule[day].subjects[j].permission.detail[k].sid = 0
-							schedule[day].subjects[j].permission.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].permission.count; l++ {
-								schedule[day].subjects[j].permission.detail[l] = schedule[day].subjects[j].permission.detail[l+1]
-							}
+						for l = k; l < schedule[day].subjects[j].permission.count - 1; l++ {
+							schedule[day].subjects[j].permission.detail[l] = schedule[day].subjects[j].permission.detail[l+1]
 						}
+						schedule[day].subjects[j].permission.count--
 					}
 					k = k + 1
 				}
 				k = 0
-				for k <= schedule[day].subjects[j].alpha.count {
+				for k < schedule[day].subjects[j].alpha.count {
 					if schedule[day].subjects[j].alpha.detail[k].name == name {
-						if k == schedule[day].subjects[j].alpha.count {
-							schedule[day].subjects[j].alpha.detail[k].name = ""
-							schedule[day].subjects[j].alpha.detail[k].sid = 0
-							schedule[day].subjects[j].alpha.detail[k].class = ""
-						} else {
-							for l = k; l < schedule[day].subjects[j].alpha.count; l++ {
-								schedule[day].subjects[j].alpha.detail[l] = schedule[day].subjects[j].alpha.detail[l+1]
-							}
+						for l = k; l < schedule[day].subjects[j].alpha.count - 1; l++ {
+							schedule[day].subjects[j].alpha.detail[l] = schedule[day].subjects[j].alpha.detail[l+1]
 						}
+						schedule[day].subjects[j].alpha.count--
 					}
 					k = k + 1
 				}
@@ -400,11 +370,12 @@ func deleteStudentData(students *studentList, attendancelog *loglist, sorted *bo
 	fmt.Printf("\nStudent data deleted successfully!\n")
 	fmt.Print("Press Enter to go back...")
 	fmt.Scanln()
+	fmt.Scanln()
 }
 
 func searchStudentData(students studentList, index *int, sorted *bool, ordersort *string) {
 	var choice, name string
-	var sid, i int
+	var sid, i, left, right int
 	clearscreen()
 	fmt.Print("Search based on (name/sid): ")
 	fmt.Scan(&choice)
@@ -415,9 +386,38 @@ func searchStudentData(students studentList, index *int, sorted *bool, ordersort
 		for i = 0; i < students.count && students.detail[i].name != name; i++ {
 		}
 	} else if choice == "sid" {
-		fmt.Print("Enter Student ID: ")
-		fmt.Scan(&sid)
-		for i = 0; i < students.count && students.detail[i].sid != sid; i++ {
+		if *sorted {
+			fmt.Print("Enter Student ID: ")
+			fmt.Scan(&sid)
+			left = 0
+			right = students.count - 1
+			i = (left + right) / 2
+			if *ordersort == "asc" {
+				for left <= right {
+					if students.detail[i].sid == sid {
+						break
+					} else if students.detail[i].sid > sid {
+						right = i - 1
+					} else {
+						left = i + 1
+					}
+					i = (left + right) / 2
+				}
+			} else if *ordersort == "des" {
+				for left <= right {
+					if students.detail[i].sid == sid {
+						break
+					} else if students.detail[i].sid < sid {
+						right = i - 1
+					} else {
+						left = i + 1
+					}
+					i = (left + right) / 2
+				}
+			}
+		} else {
+			fmt.Printf("Data is not sorted or empty. Can't search based on SID\n")
+			return
 		}
 	}
 	if i < students.count {
