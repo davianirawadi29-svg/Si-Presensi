@@ -452,44 +452,44 @@ func searchStudentData(students studentList, index *int, sorted *bool, ordersort
 	}
 	fmt.Printf("\n")
 }
-// Only checked additional bugs untill search student Data.
+
 func addClassSchedule(schedule *classlist) {
-	var day, i int
-	var choice string
+	var day int
+	var dayChoice string
+	var courseChoice string
 	clearscreen()
-	choice = ""
-	day = 1
-	i = (*schedule)[day-1].subjectcount
-	for day <= 7 && choice != "exit" {	
+	
+	for day = 1; day <= 7 && dayChoice != "exit"; day++ {
+		dayChoice = ""
 		fmt.Printf("Add class in day %d or exit (yes/no/exit)?\n", day)
-		fmt.Scan(&choice)
-		if choice == "yes" {
-			for choice == "yes" {
+		fmt.Scan(&dayChoice)
+		if dayChoice == "yes" {
+			i := (*schedule)[day-1].subjectcount
+			courseChoice = "yes"
+			for courseChoice == "yes" {
 				if i < COURSE {
 					fmt.Print("Input the course name: ")
 					fmt.Scan(&schedule[day-1].subjects[i].name)
 					fmt.Printf("\n")
 					fmt.Print("Add more course (yes/no)?\n")
-					fmt.Scan(&choice)
-					for choice != "no" && choice != "yes" {
+					fmt.Scan(&courseChoice)
+					for courseChoice != "no" && courseChoice != "yes" {
 						fmt.Printf("Invalid choice, Please select from yes/no.\n")
-						fmt.Scan(&choice)
+						fmt.Scan(&courseChoice)
 					}
-					i = i + 1
+					i++
 				} else {
 					fmt.Printf("Max course reached for this day\n")
 					break
 				}
 			}
-		} else if choice != "no" && choice != "exit" {
-			fmt.Print("Invalid choice, please select between yes, no or exit (No capital letters!)\n")
-			fmt.Scan(&choice)
-			continue
+			(*schedule)[day-1].subjectcount = i
 		}
-		(*schedule)[day-1].subjectcount = i
-		day = day + 1
-		if day < 8 {
-			i = (*schedule)[day-1].subjectcount
+		if dayChoice != "yes" && dayChoice != "no" && dayChoice != "exit" {
+			fmt.Print("Invalid choice, please select between yes, no or exit (No capital letters!)\n")
+			fmt.Scan(&dayChoice)
+			day--
+			continue
 		}
 		clearscreen()
 	}
@@ -501,35 +501,32 @@ func addClassSchedule(schedule *classlist) {
 // Function to add class in schedule. It's assumed 2 subjects with the same name in the same day have different time.
 
 func viewClassSchedule(schedule classlist) {
-	var day, i int
+	var day int
 	var choice string
 	clearscreen()
+	
 	choice = ""
 	day = 1
-	i = 0
-
 	for day <= 7 && choice != "exit" {
 		fmt.Printf("View schedule in day %d or exit (yes/no/exit)?\n", day)
 		fmt.Scan(&choice)
 		if choice == "yes" {
-			for i < schedule[day-1].subjectcount {
+			for i := 0; i < schedule[day-1].subjectcount; i++ {
 				fmt.Printf("Subject %d: %s\n", i+1, schedule[day-1].subjects[i].name)
-				i = i + 1
 			}
 		} else if choice != "no" && choice != "exit" {
-			fmt.Printf("Choice invalid! Please selection between yes, no or exit (No capital letters!)\n")
+			fmt.Printf("Choice invalid! Please select between yes, no or exit (No capital letters!)\n")
 			fmt.Scan(&choice)
 			continue
 		}
-		i = 0
-		day = day + 1
+		day++
+		choice = ""
 	}
-
 	fmt.Printf("Press enter to go back...")
 	fmt.Scanln()
 	fmt.Scanln()
 }
-
+// Fixed bugs untill view class schedule.
 func recordAttendance(schedule *classlist, attendancelog *loglist) {
 	var subjectchoice, choice, attendance, inputchoice, name, optioncase string
 	var i, day, j, k int
@@ -777,37 +774,37 @@ func Insertion(students *studentList, attendancelog *loglist, sorted *bool, orde
 	var i, j int
 	var choice string
 	clearscreen()
-	if students.count > 0 {
+	if (*students).count > 0 {
 		fmt.Printf("Sort ascendingly or descendingly? (asc/des)\n")
 		fmt.Scan(&choice)
 		if choice == "asc" {
-			for i = 1; i < students.count; i++ {
-				temp1 = students.detail[i]
-				temp2 = attendancelog.datalog[i]
+			for i = 1; i < (*students).count; i++ {
+				temp1 = (*students).detail[i]
+				temp2 = (*attendancelog).datalog[i]
 				j = i - 1
-				for j >= 0 && students.detail[j].name > temp1.name {
-					students.detail[j+1] = students.detail[j]
-					attendancelog.datalog[j+1] = attendancelog.datalog[j]
+				for j >= 0 && (*students).detail[j].name > temp1.name {
+					(*students).detail[j+1] = (*students).detail[j]
+					(*attendancelog).datalog[j+1] = (*attendancelog).datalog[j]
 					j = j - 1
 				}
-				students.detail[j+1] = temp1
-				attendancelog.datalog[j+1] = temp2
+				(*students).detail[j+1] = temp1
+				(*attendancelog).datalog[j+1] = temp2
 			}
 			*sorted = false
 			*ordersort = ""
 			fmt.Printf("Data successfully sorted ascendingly!\n")
 		} else if choice == "des" {
-			for i = 1; i < students.count; i++ {
-				temp1 = students.detail[i]
-				temp2 = attendancelog.datalog[i]
+			for i = 1; i < (*students).count; i++ {
+				temp1 = (*students).detail[i]
+				temp2 = (*attendancelog).datalog[i]
 				j = i - 1
-				for j >= 0 && students.detail[j].name < temp1.name {
-					students.detail[j+1] = students.detail[j]
-					attendancelog.datalog[j+1] = attendancelog.datalog[j]
+				for j >= 0 && (*students).detail[j].name < temp1.name {
+					(*students).detail[j+1] = (*students).detail[j]
+					(*attendancelog).datalog[j+1] = (*attendancelog).datalog[j]
 					j = j - 1
 				}
-				students.detail[j+1] = temp1
-				attendancelog.datalog[j+1] = temp2
+				(*students).detail[j+1] = temp1
+				(*attendancelog).datalog[j+1] = temp2
 			}
 			*sorted = false
 			*ordersort = ""
@@ -829,44 +826,44 @@ func Selection(students *studentList, attendancelog *loglist, sorted *bool, orde
 	var temp2 log
 	var choice string
 	clearscreen()
-	if students.count > 0 {
+	if (*students).count > 0 {
 		fmt.Printf("Sort ascendingly or descendingly? (asc/des)\n")
 		fmt.Scan(&choice)
 		if choice == "asc" {
-			for i = 0; i < students.count - 1; i++ {
+			for i = 0; i < (*students).count - 1; i++ {
 				index = i
-				for j = i+1; j < students.count; j++ {
-					if attendancelog.datalog[j].absence < attendancelog.datalog[index].absence {
+				for j = i+1; j < (*students).count; j++ {
+					if (*attendancelog).datalog[j].absence < (*attendancelog).datalog[index].absence {
 						index = j
 					}
 				}
 				if index != i {
-					temp1 = students.detail[i]
-					temp2 = attendancelog.datalog[i]
-					students.detail[i] = students.detail[index]
-					attendancelog.datalog[i] = attendancelog.datalog[index]
-					students.detail[index] = temp1
-					attendancelog.datalog[index] = temp2
+					temp1 = (*students).detail[i]
+					temp2 = (*attendancelog).datalog[i]
+					(*students).detail[i] = (*students).detail[index]
+					(*attendancelog).datalog[i] = (*attendancelog).datalog[index]
+					(*students).detail[index] = temp1
+					(*attendancelog).datalog[index] = temp2
 				}
 			}
 			*sorted = false
 			*ordersort = ""
 			fmt.Printf("Data successfully sorted ascendingly!\n")
 		} else if choice == "des" {
-			for i = 0; i < students.count - 1; i++ {
+			for i = 0; i < (*students).count - 1; i++ {
 				index = i
-				for j = i+1; j < students.count; j++ {
-					if attendancelog.datalog[j].absence > attendancelog.datalog[index].absence {
+				for j = i+1; j < (*students).count; j++ {
+					if (*attendancelog).datalog[j].absence > (*attendancelog).datalog[index].absence {
 						index = j
 					}
 				}
 				if index != i {
-					temp1 = students.detail[i]
-					temp2 = attendancelog.datalog[i]
-					students.detail[i] = students.detail[index]
-					attendancelog.datalog[i] = attendancelog.datalog[index]
-					students.detail[index] = temp1
-					attendancelog.datalog[index] = temp2
+					temp1 = (*students).detail[i]
+					temp2 = (*attendancelog).datalog[i]
+					(*students).detail[i] = (*students).detail[index]
+					(*attendancelog).datalog[i] = (*attendancelog).datalog[index]
+					(*students).detail[index] = temp1
+					(*attendancelog).datalog[index] = temp2
 				}
 			}
 			*sorted = false
@@ -889,37 +886,37 @@ func Binary(students *studentList, attendancelog *loglist, sorted *bool, orderso
 	var i, j int
 	var choice string
 	clearscreen()
-	if students.count > 0 {
+	if (*students).count > 0 {
 		fmt.Printf("Sort ascendingly or descendingly? (asc/des)\n")
 		fmt.Scan(&choice)
 		if choice == "asc" {
-			for i = 1; i < students.count; i++ {
-				temp1 = students.detail[i]
-				temp2 = attendancelog.datalog[i]
+			for i = 1; i < (*students).count; i++ {
+				temp1 = (*students).detail[i]
+				temp2 = (*attendancelog).datalog[i]
 				j = i - 1
-				for j >= 0 && students.detail[j].sid > temp1.sid {
-					students.detail[j+1] = students.detail[j]
-					attendancelog.datalog[j+1] = attendancelog.datalog[j]
+				for j >= 0 && (*students).detail[j].sid > temp1.sid {
+					(*students).detail[j+1] = (*students).detail[j]
+					(*attendancelog).datalog[j+1] = (*attendancelog).datalog[j]
 					j = j - 1
 				}
-				students.detail[j+1] = temp1
-				attendancelog.datalog[j+1] = temp2
+				(*students).detail[j+1] = temp1
+				(*attendancelog).datalog[j+1] = temp2
 			}
 			*sorted = true
 			*ordersort = "asc"
 			fmt.Printf("Data successfully sorted ascendingly!\n")
 		} else if choice == "des" {
-			for i = 1; i < students.count; i++ {
-				temp1 = students.detail[i]
-				temp2 = attendancelog.datalog[i]
+			for i = 1; i < (*students).count; i++ {
+				temp1 = (*students).detail[i]
+				temp2 = (*attendancelog).datalog[i]
 				j = i - 1
-				for j >= 0 && students.detail[j].sid < temp1.sid {
-					students.detail[j+1] = students.detail[j]
-					attendancelog.datalog[j+1] = attendancelog.datalog[j]
+				for j >= 0 && (*students).detail[j].sid < temp1.sid {
+					(*students).detail[j+1] = (*students).detail[j]
+					(*attendancelog).datalog[j+1] = (*attendancelog).datalog[j]
 					j = j - 1
 				}
-				students.detail[j+1] = temp1
-				attendancelog.datalog[j+1] = temp2
+				(*students).detail[j+1] = temp1
+				(*attendancelog).datalog[j+1] = temp2
 			}
 			*sorted = true
 			*ordersort = "des"
