@@ -376,6 +376,7 @@ func deleteStudentData(students *studentList, attendancelog *loglist, schedule *
 func searchStudentData(students studentList, index *int, sorted *bool, ordersort *string) {
 	var choice, name string
 	var sid, i, left, right int
+	*index = -1
 	clearscreen()
 	fmt.Print("Search based on (name/sid): ")
 	fmt.Scan(&choice)
@@ -419,6 +420,9 @@ func searchStudentData(students studentList, index *int, sorted *bool, ordersort
 			fmt.Printf("Data is not sorted or empty. Can't search based on SID\n")
 			return
 		}
+	} else {
+		fmt.Printf("Invalid Search type! Searching failed!\n")
+		return
 	}
 	if i < students.count {
 		*index = i
@@ -436,26 +440,38 @@ func addClassSchedule(schedule *classlist) {
 	for day <= 7 && choice != "exit" {	
 		fmt.Printf("Add class in day %d or exit (yes/no/exit)?\n", day)
 		fmt.Scan(&choice)
-		if choice == "Yes" {
+		if choice == "yes" {
 			for choice == "yes" {
-				fmt.Print("Input the course name: ")
-				fmt.Scan(&schedule[day-1].subjects[i].name)
-				fmt.Printf("\n")
-				fmt.Print("Add more course (Yes/No)?\n")
-				fmt.Scan(&choice)
-				i = i + 1
+				if i < COURSE {
+					fmt.Print("Input the course name: ")
+					fmt.Scan(&schedule[day-1].subjects[i].name)
+					fmt.Printf("\n")
+					fmt.Print("Add more course (yes/no)?\n")
+					fmt.Scan(&choice)
+					for choice != "no" && choice != "yes" {
+						fmt.Printf("Invalid choice, Please select from yes/no.\n")
+						fmt.Scan(&choice)
+					}
+					i = i + 1
+				} else {
+					fmt.Printf("Max course reached for this day\n")
+					break
+				}
 			}
-		} else if choice != "no" || choice != "exit" {
-			fmt.Print("Invalid choice, please select between yes, no or exit (No capital letters!)")
+		} else if choice != "no" && choice != "exit" {
+			fmt.Print("Invalid choice, please select between yes, no or exit (No capital letters!)\n")
 			fmt.Scan(&choice)
 			continue
 		}
-		schedule[day-1].subjectcount = i-1
+		schedule[day-1].subjectcount = i
 		day = day + 1
-		i = schedule[day-1].subjectcount
+		if day < 8 {
+			i = schedule[day-1].subjectcount
+		}
 		clearscreen()
 	}
 	fmt.Printf("Press enter to go back...")
+	fmt.Scanln()
 	fmt.Scanln()
 }
 
@@ -473,12 +489,12 @@ func viewClassSchedule(schedule classlist) {
 		fmt.Printf("View schedule in day %d or exit (yes/no/exit)?\n", day)
 		fmt.Scan(&choice)
 		if choice == "yes" {
-			for i <= schedule[day-1].subjectcount {
+			for i < schedule[day-1].subjectcount {
 				fmt.Printf("Subject %d: %s\n", i+1, schedule[day-1].subjects[i].name)
 				i = i + 1
 			}
-		} else if choice != "no" || choice != "exit" {
-			fmt.Printf("Choice invalid! Please selection between yes, no or exit (No capital letters!)")
+		} else if choice != "no" && choice != "exit" {
+			fmt.Printf("Choice invalid! Please selection between yes, no or exit (No capital letters!)\n")
 			fmt.Scan(&choice)
 			continue
 		}
@@ -488,72 +504,84 @@ func viewClassSchedule(schedule classlist) {
 
 	fmt.Printf("Press enter to go back...")
 	fmt.Scanln()
+	fmt.Scanln()
 }
-
+// Fixing Record Attendance
 func recordAttendance(schedule *classlist, attendancelog *loglist) {
 	var subjectchoice, choice, attendance, inputchoice, name, optioncase string
 	var i, day, j, k, index int
 	i = 0
 	day = 1
 	k = 0
-	j = 0
 	inputchoice = "yes"
 	fmt.Printf("Record Attendance in day %d? (yes/no/exit)\n", day)
 	fmt.Scan(&choice)
 	for choice != "exit" {
 		if choice == "yes" {
-			for i <= schedule[day-1].subjectcount {
-				fmt.Printf("Add attendance for %s? (yes\no)\n", schedule[day-1].subject[i].name)
+			for i < schedule[day-1].subjectcount {
+				fmt.Printf("Add attendance for %s? (yes\no)\n", schedule[day-1].subjects[i].name)
 				fmt.Scan(&subjectchoice)
 				if subjectchoice == "yes" {
 					fmt.Printf("Select from the options (present/sick/permission/alpha)\n")
 					fmt.Scan(&attendance)
 					switch attendance {
 						case "present":
-							for inputchoice != "no" {
-								fmt.Print("Input student name present: ")
-								fmt.Scan(&name)
-								for k <= attendancelog.logcount {
-									if attendancelog.datalog[k].student.name == name {
-										schedule[day-1].subject[i].present.detail[j].name = attendancelog.datalog[k].student.name 
-										schedule[day-1].subject[i].present.detail[j].sid = attendancelog.datalog[k].student.sid
-										schedule[day-1].subject[i].present.detail[j].class = attendancelog.datalog[k].student.class
-										attendancelog.datalog[k].presence = attendancelog.datalog[k].presence + 1
-										break
+							j = schedule[day-1].subjects[i].present.count
+							if j < STUDENT {
+								for inputchoice != "no" {
+									fmt.Print("Input student name present: ")
+									fmt.Scan(&name)
+									for k < attendancelog.logcount {
+										if attendancelog.datalog[k].student.name == name {
+											schedule[day-1].subjects[i].present.detail[j].name = attendancelog.datalog[k].student.name 
+											schedule[day-1].subjects[i].present.detail[j].sid = attendancelog.datalog[k].student.sid
+											schedule[day-1].subjects[i].present.detail[j].class = attendancelog.datalog[k].student.class
+											schedule[day-1].subjects[i].present.count++
+											attendancelog.datalog[k].presence = attendancelog.datalog[k].presence + 1
+											break
+										}
+										k++
 									}
-									k++
-								}
-								if k > attendancelog.logcount {
-									fmt.Printf("Student not found! Type exit if you don't know student name or anything if you want to continue.\n")
-									fmt.Scanln(&optioncase)
-									if name == "exit" {
-										return
-									} else {
-										continue
+									if k >= attendancelog.logcount {
+										fmt.Printf("Student not found! Type exit if you don't know student name or anything if you want to continue.\n")
+										fmt.Scanln(&optioncase)
+										if optioncase == "exit" {
+											return
+										} else {
+											continue
+										}
 									}
+									fmt.Printf("\nAdd more students? (yes/no)\n")
+									fmt.Scan(&inputchoice)
+									j = j + 1
+									k = 0
 								}
-								fmt.Printf("\nAdd more students? (yes/no)\n")
-								fmt.Scan(&inputchoice)
-								j = j + 1
+							} else {
+								fmt.Printf("Maximum Student capacity reached. Press enter to go back to menu...\n")
+								fmt.Scanln()
+								fmt.Scanln()
+								return
 							}
 						case "sick":
+							j = schedule[day-1].subjects[i].sick.count
 							for inputchoice != "no" {
 								fmt.Print("Input student name that's sick: ")
 								fmt.Scan(&name)
-								for k <= attendancelog.logcount {
+								for k < attendancelog.logcount {
 									if attendancelog.datalog[k].student.name == name {
-										schedule[day-1].subject[i].sick.detail[j].name = attendancelog.datalog[k].student.name
-										schedule[day-1].subject[i].sick.detail[j].sid = attendancelog.datalog[k].student.sid
-										schedule[day-1].subject[i].sick.detail[j].class = attendancelog.datalog[k].student.class
+										schedule[day-1].subjects[i].sick.detail[j].name = attendancelog.datalog[k].student.name
+										schedule[day-1].subjects[i].sick.detail[j].sid = attendancelog.datalog[k].student.sid
+										schedule[day-1].subjects[i].sick.detail[j].class = attendancelog.datalog[k].student.class
+										schedule[day-1].subjects[i].sick.count++
 										attendancelog.datalog[k].absence = attendancelog.datalog[k].absence + 1
 										break
 									}
 									k++
 								}
-								if k > attendancelog.logcount {
+								if k >= attendancelog.logcount {
 									fmt.Printf("Student not found! Type exit if you don't know student name or anything if you want to continue.\n")
 									fmt.Scanln(&optioncase)
-									if name == "exit" {
+									if optioncase == "exit" {
 										return
 									} else {
 										continue
@@ -562,25 +590,28 @@ func recordAttendance(schedule *classlist, attendancelog *loglist) {
 								fmt.Printf("\nAdd more students? (yes/no)\n")
 								fmt.Scan(&inputchoice)
 								j = j + 1
+								k = 0
 							}
 						case "permission":
+							j = schedule[day-1].subjects[i].permission.count
 							for inputchoice != "no" {
 								fmt.Print("Input student name with permission: ")
 								fmt.Scan(&name)
-								for k <= attendancelog.logcount {
+								for k < attendancelog.logcount {
 									if attendancelog.datalog[k].student.name == name {
-										schedule[day-1].subject[i].permission.detail[j].name = attendancelog.datalog[k].student.name
-										schedule[day-1].subject[i].permission.detail[j].sid = attendancelog.datalog[k].student.sid
-										schedule[day-1].subject[i].permission.detail[j].class = attendancelog.datalog[k].student.class
+										schedule[day-1].subjects[i].permission.detail[j].name = attendancelog.datalog[k].student.name
+										schedule[day-1].subjects[i].permission.detail[j].sid = attendancelog.datalog[k].student.sid
+										schedule[day-1].subjects[i].permission.detail[j].class = attendancelog.datalog[k].student.class
+										schedule[day-1].subjects[i].permission.count++
 										attendancelog.datalog[k].absence = attendancelog.datalog[k].absence + 1
 										break
 									}
 									k++
 								}
-								if k > attendancelog.logcount {
+								if k >= attendancelog.logcount {
 									fmt.Printf("Student not found! Type exit if you don't know student name or anything if you want to continue.\n")
 									fmt.Scanln(&optioncase)
-									if name == "exit" {
+									if optioncase == "exit" {
 										return
 									} else {
 										continue
@@ -589,25 +620,28 @@ func recordAttendance(schedule *classlist, attendancelog *loglist) {
 								fmt.Printf("\nAdd more students? (yes/no)\n")
 								fmt.Scan(&inputchoice)
 								j = j + 1
+								k = 0
 							}
-						case "alpha:
+						case "alpha":
+							j = schedule[day-1].subjects[i].alpha.count
 							for inputchoice != "no" {
 								fmt.Print("Input student name that's alpha: ")
 								fmt.Scan(&name)
-								for k <= attendancelog.logcount {
+								for k < attendancelog.logcount {
 									if attendancelog.datalog[k].student.name == name {
-										schedule[day-1].subject[i].alpha.detail[j].name = attendancelog.datalog[k].student.name
-										schedule[day-1].subject[i].alpha.detail[j].sid = attendancelog.datalog[k].student.sid
-										schedule[day-1].subject[i].alpha.detail[j].class = attendancelog.datalog[k].student.class
+										schedule[day-1].subjects[i].alpha.detail[j].name = attendancelog.datalog[k].student.name
+										schedule[day-1].subjects[i].alpha.detail[j].sid = attendancelog.datalog[k].student.sid
+										schedule[day-1].subjects[i].alpha.detail[j].class = attendancelog.datalog[k].student.class
+										schedule[day-1].subjects[i].alpha.count++
 										attendancelog.datalog[k].absence = attendancelog.datalog[k].absence + 1
 										break
 									}
 									k++
 								}
-								if k > attendancelog.logcount {
+								if k >= attendancelog.logcount {
 									fmt.Printf("Student not found! Type exit if you don't know student name or anything if you want to continue.\n")
 									fmt.Scanln(&optioncase)
-									if name == "exit" {
+									if optioncase == "exit" {
 										return
 									} else {
 										continue
@@ -616,6 +650,7 @@ func recordAttendance(schedule *classlist, attendancelog *loglist) {
 								fmt.Printf("\nAdd more students? (yes/no)\n")
 								fmt.Scan(&inputchoice)
 								j = j + 1
+								k = 0
 							}
 						default:
 							fmt.Printf("Invalid option!\n")
@@ -636,10 +671,11 @@ func recordAttendance(schedule *classlist, attendancelog *loglist) {
 		fmt.Printf("Record Attendance in day %d? (yes/no/exit)\n", day)
 		fmt.Scan(&choice)
 		i = 0
-		j = 0
 		k = 0
+		inputchoice = "yes"
 	}
 	fmt.Print("Press enter to go back...")
+	fmt.Scanln()
 	fmt.Scanln()
 }
 
