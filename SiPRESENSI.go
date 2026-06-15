@@ -149,7 +149,7 @@ func main() {
 				fmt.Scanln()
 			}
 		case 10:
-			showPresencePercentage(&schedule)
+			showPresencePercentage(schedule)
 		default:
 			fmt.Print("Invalid choice. Please select a valid option: ")
 			fmt.Scan(&choice)
