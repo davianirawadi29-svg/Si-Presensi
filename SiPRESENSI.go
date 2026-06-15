@@ -95,6 +95,7 @@ func main() {
 	fmt.Println("7. Record Attendance")
 	fmt.Println("8. View Attendance Log")
 	fmt.Println("9. Sort Student Data")
+	fmt.Println("10. Show Presence Data")
 	fmt.Println("-1. Exit")
 	fmt.Scan(&choice)
 
@@ -147,6 +148,8 @@ func main() {
 				fmt.Scanln()
 				fmt.Scanln()
 			}
+		case 10:
+			showPresencePercentage(&schedule)
 		default:
 			fmt.Print("Invalid choice. Please select a valid option: ")
 			fmt.Scan(&choice)
