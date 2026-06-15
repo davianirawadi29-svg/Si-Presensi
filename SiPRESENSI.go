@@ -529,6 +529,11 @@ func viewClassSchedule(schedule classlist) {
 			fmt.Printf("Choice invalid! Please select between yes, no or exit (No capital letters!)\n")
 			fmt.Scan(&choice)
 			continue
+		} else if choice == "exit" {
+			fmt.Printf("Press enter to go back...")
+			fmt.Scanln()
+			fmt.Scanln()
+			return
 		}
 		day++
 		choice = ""
